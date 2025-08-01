@@ -20,7 +20,12 @@ jobs:
 
       - name: Install dependencies
         working-directory: backend
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Run tests (optional)
         working-directory: backend
@@ -32,8 +37,8 @@ jobs:
       - name: Archive backend for deployment
         run: |
           cd backend
-          zip -r ../backend-deploy.zip . 
-      
+          zip -r ../backend-deploy.zip .
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
