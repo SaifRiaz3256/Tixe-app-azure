@@ -1,0 +1,17 @@
+{
+  "name": "simple-backend-api",
+  "version": "1.0.0",
+  "description": "Node.js backend with 5 example APIs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.0"
+  }
+}
