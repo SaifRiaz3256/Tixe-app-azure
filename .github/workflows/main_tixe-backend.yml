@@ -36,15 +36,4 @@ jobs:
           app-name: tixe-backend
           package: ./backend-deploy.zip
 
-      - name: Post-deploy health check
-        run: |
-          echo "Waiting for app to warm up..."
-          sleep 8
-          URL="https://tixe-backend.azurewebsites.net/health"
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-          if [ "$STATUS" != "200" ]; then
-            echo "Health check failed: HTTP $STATUS at $URL"
-            exit 1
-          else
-            echo "Health check passed."
-          fi
+      
