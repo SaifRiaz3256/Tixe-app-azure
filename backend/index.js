@@ -1,97 +1,28 @@
-const express = require("express");
-const cors = require("cors");
-const { v4: uuidv4 } = require("uuid");
+// In-memory user store (replace later with PostgreSQL)
+const users = new Map();
 
-const app = express();
-const port = process.env.PORT || 4000;
+// Basic email+password validation
+function validateEmail(email) {
+  return /\S+@\S+\.\S+/.test(email);
+}
 
-// Middleware
-app.use(cors());
-app.use(express.json()); // parse JSON bodies
+app.post("/signup", (req, res) => {
+  const { email, password } = req.body;
+  if (!validateEmail(email)) return res.status(400).json({ error: "Invalid email" });
+  if (!password || password.length < 6) return res.status(400).json({ error: "Password must be at least 6 characters" });
 
-// In-memory "items" store
-const items = new Map();
+  if (users.has(email)) return res.status(409).json({ error: "User already exists" });
 
-/**
- * API 1: Create an item
- * POST /items
- * Body: { name: string, description?: string }
- */
-app.post("/items", (req, res) => {
-  const { name, description } = req.body;
-  if (!name) return res.status(400).json({ error: "Name is required" });
-
-  const id = uuidv4();
-  const item = {
-    id,
-    name,
-    description: description || "",
-    createdAt: new Date().toISOString()
-  };
-  items.set(id, item);
-  res.status(201).json(item);
+  users.set(email, { email, password }); // store plain password for now
+  res.status(201).json({ message: "User created successfully" });
 });
 
-/**
- * API 2: List all items
- * GET /items
- */
-app.get("/items", (req, res) => {
-  const all = Array.from(items.values());
-  res.json(all);
-});
+app.post("/signin", (req, res) => {
+  const { email, password } = req.body;
+  const user = users.get(email);
+  if (!user || user.password !== password) {
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
 
-/**
- * API 3: Get one item by ID
- * GET /items/:id
- */
-app.get("/items/:id", (req, res) => {
-  const item = items.get(req.params.id);
-  if (!item) return res.status(404).json({ error: "Item not found" });
-  res.json(item);
-});
-
-/**
- * API 4: Update an item
- * PUT /items/:id
- * Body: { name?: string, description?: string }
- */
-app.put("/items/:id", (req, res) => {
-  const item = items.get(req.params.id);
-  if (!item) return res.status(404).json({ error: "Item not found" });
-
-  const { name, description } = req.body;
-  if (name !== undefined) item.name = name;
-  if (description !== undefined) item.description = description;
-  item.updatedAt = new Date().toISOString();
-
-  items.set(item.id, item);
-  res.json(item);
-});
-
-/**
- * API 5: Delete an item
- * DELETE /items/:id
- */
-app.delete("/items/:id", (req, res) => {
-  if (!items.has(req.params.id)) return res.status(404).json({ error: "Item not found" });
-  items.delete(req.params.id);
-  res.status(204).send();
-});
-
-/**
- * Health check
- * GET /health
- */
-app.get("/health", (req, res) => {
-  res.json({ status: "ok", uptime: process.uptime() });
-});
-
-// Fallback
-app.use((req, res) => {
-  res.status(404).json({ error: "Endpoint not found" });
-});
-
-app.listen(port, () => {
-  console.log(`API server listening on port ${port}`);
+  res.json({ message: "Login successful" });
 });
