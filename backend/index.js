@@ -22,7 +22,6 @@ const config = {
 // Route: Sign Up
 app.post("/signup", async (req, res) => {
   const { email, password } = req.body;
-  const id = uuidv4();
 
   try {
     await sql.connect(config);
@@ -31,7 +30,7 @@ app.post("/signup", async (req, res) => {
       return res.status(400).json({ success: false, message: "Email already exists" });
     }
 
-    await sql.query`INSERT INTO users (id, email, password) VALUES (${id}, ${email}, ${password})`;
+    await sql.query`INSERT INTO users (email, password) VALUES (${email}, ${password})`;
     res.status(201).json({ success: true, message: "Signup successful" });
   } catch (err) {
     console.error("Signup error:", err); 
