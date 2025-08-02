@@ -25,7 +25,7 @@
   </div>
 
   <script>
-    const backend = localStorage.getItem("backend_base_url") || "https://your-backend.azurewebsites.net";
+    const backend = localStorage.getItem("backend_base_url") || "tixe-backend-ese8feh6gja3hmen.eastasia-01.azurewebsites.net";
 
     async function signup() {
       const email = document.getElementById("signupEmail").value.trim();
@@ -38,7 +38,14 @@
       });
 
       const data = await res.json();
-      document.getElementById("signupResult").textContent = JSON.stringify(data, null, 2);
+
+      if (res.ok && data.success) {
+        alert("✅ Signup successful!");
+        document.getElementById("signupResult").textContent = "";
+      } else {
+        alert("❌ Signup failed: " + (data.message || data.error));
+        document.getElementById("signupResult").textContent = JSON.stringify(data, null, 2);
+      }
     }
 
     async function signin() {
@@ -52,7 +59,14 @@
       });
 
       const data = await res.json();
-      document.getElementById("signinResult").textContent = JSON.stringify(data, null, 2);
+
+      if (res.ok && data.success) {
+        alert("✅ Signin successful!");
+        document.getElementById("signinResult").textContent = "";
+      } else {
+        alert("❌ Signin failed: " + (data.message || data.error));
+        document.getElementById("signinResult").textContent = JSON.stringify(data, null, 2);
+      }
     }
   </script>
 </body>
