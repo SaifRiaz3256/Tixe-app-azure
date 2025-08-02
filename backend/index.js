@@ -34,7 +34,7 @@ app.post("/signup", async (req, res) => {
     await sql.query`INSERT INTO users (id, email, password) VALUES (${id}, ${email}, ${password})`;
     res.status(201).json({ success: true, message: "Signup successful" });
   } catch (err) {
-    console.error(err);
+    console.error("Signup error:", err); 
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
@@ -54,7 +54,7 @@ app.post("/signin", async (req, res) => {
 
     res.json({ success: true, message: "Signin successful", userId: user.id });
   } catch (err) {
-    console.error(err);
+    console.error("Signin error:", err); 
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
