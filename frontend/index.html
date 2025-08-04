@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login & Signup</title>
+  <title>Login, Signup & Image Upload</title>
 </head>
 <body>
-  <h1>Simple Auth App</h1>
+  <h1>Auth App with Image Upload</h1>
 
   <div>
     <h2>Sign Up</h2>
@@ -24,8 +24,17 @@
     <pre id="signinResult"></pre>
   </div>
 
+  <div>
+    <h2>Upload Image</h2>
+    <input type="file" id="imageInput" accept="image/*"><br/>
+    <button onclick="uploadImage()">Upload Image</button>
+    <pre id="uploadResult"></pre>
+    <div id="preview"></div>
+  </div>
+
   <script>
     const backend = "https://tixe-backend-ese8feh6gja3hmen.eastasia-01.azurewebsites.net";
+
     async function signup() {
       const email = document.getElementById("signupEmail").value.trim();
       const password = document.getElementById("signupPassword").value.trim();
@@ -65,6 +74,42 @@
       } else {
         alert("❌ Signin failed: " + (data.message || data.error));
         document.getElementById("signinResult").textContent = JSON.stringify(data, null, 2);
+      }
+    }
+
+    async function uploadImage() {
+      const fileInput = document.getElementById("imageInput");
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert("Select an image first");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await fetch(`${backend}/upload`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        document.getElementById("uploadResult").textContent = "";
+        alert("✅ Upload successful!");
+
+        // Show preview using returned SAS URL
+        const img = document.createElement("img");
+        img.src = data.url;
+        img.alt = "Uploaded image";
+        img.style.maxWidth = "300px";
+        img.style.display = "block";
+        const preview = document.getElementById("preview");
+        preview.innerHTML = "";
+        preview.appendChild(img);
+      } else {
+        alert("❌ Upload failed: " + (data.message || data.error));
+        document.getElementById("uploadResult").textContent = JSON.stringify(data, null, 2);
       }
     }
   </script>
